@@ -1,5 +1,12 @@
 @import-normalize; /* bring in normalize.css styles */
 
+:root {
+  --background-color-one: #ebf8e1;
+  --color-second: #7d6ad9;
+  --background-color-overlay: rgba(0, 0, 0, 0.8);
+  --white-color: #fff;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7,6 +14,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background-color: var(--background-color-one);
 }
 
 code {
