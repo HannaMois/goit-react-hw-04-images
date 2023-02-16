@@ -15,6 +15,7 @@ export class App extends Component {
     query: '',
     openModal: false,
     largeImgUrl: '',
+    error: '',
   };
 
   componentDidUpdate = async (_, prevState) => {
@@ -24,12 +25,12 @@ export class App extends Component {
     }
   };
 
-  getQuery = queryText => {
-    if (queryText.text === this.state.query) {
+  getQuery = query => {
+    if (query === this.state.query) {
       alert('Enter a new request');
     }
     this.setState({
-      query: queryText.text,
+      query,
       images: [],
       page: 1,
       totalHits: 0,
@@ -63,6 +64,7 @@ export class App extends Component {
         return {
           images: [...prevState.images, ...images],
           totalPages,
+          error: '',
         };
       });
     } catch (error) {

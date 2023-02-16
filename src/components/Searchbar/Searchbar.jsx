@@ -19,11 +19,11 @@ class Searchbar extends Component {
 
   handleSubmit = evt => {
     evt.preventDefault();
-    if (!this.state.text) {
+    const query = this.state.text.trim().toLowerCase();
+    if (!query) {
       return;
     }
-    this.props.onSubmit({ ...this.state });
-    this.setState({ text: evt.target.value });
+    this.props.onSubmit(query);
     this.resetForm();
   };
 
