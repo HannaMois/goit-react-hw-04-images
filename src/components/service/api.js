@@ -3,7 +3,7 @@ import axios from 'axios';
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 const API_KEY = '32841517-26afb12f8bbb7df3fa6709fac';
 
-export const getImages = async (query, page) => {
+export default async function getImages(query, page) {
   const params = {
     key: API_KEY,
     q: query,
@@ -22,6 +22,6 @@ export const getImages = async (query, page) => {
     largeImageURL,
   }));
 
-  const totalPages = Math.ceil(data.totalHits / params.per_page);
-  return { images, totalPages };
-};
+  const totalImages = data.totalHits;
+  return { images, totalImages };
+}
