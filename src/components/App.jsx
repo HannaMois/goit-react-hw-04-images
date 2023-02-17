@@ -1,5 +1,8 @@
-import { Component } from 'react';
-import * as Api from './service/api';
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import getImages from './service/api';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 import Loader from './Loader';
@@ -7,93 +10,81 @@ import Button from './Button';
 import Modal from './Modal';
 import { Section } from './App.styled';
 
-export class App extends Component {
-  state = {
-    images: [],
-    isLoading: false,
-    page: 1,
-    query: '',
-    openModal: false,
-    largeImgUrl: '',
-    error: '',
-  };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [error, setError] = useState('');
+  const [largeImgUrl, setLargeImgUrl] = useState('');
+  const [totalImages2, setTotalImages2] = useState(0);
 
-  componentDidUpdate = async (_, prevState) => {
-    const { query, page } = this.state;
-    if (prevState.query !== query || prevState.page !== page) {
-      this.getImages();
-    }
-  };
+  useEffect(() => {
+    if (!query) return;
+    const fetchImages = async () => {
+      try {
+        setIsLoading(true);
+        const { images, totalImages } = await getImages(query, page);
+        setImages(prevImages => [...prevImages, ...images]);
+        setTotalImages2(totalImages);
 
-  getQuery = query => {
-    if (query === this.state.query) {
-      alert('Enter a new request');
-    }
-    this.setState({
-      query,
-      images: [],
-      page: 1,
-      totalHits: 0,
-    });
-  };
-
-  handleImgClick = largeImgUrl => {
-    this.setState({
-      openModal: true,
-      largeImgUrl,
-    });
-  };
-
-  handleLoadMore = () => {
-    this.setState(({ page }) => ({ page: page + 1 }));
-  };
-
-  getImages = async () => {
-    const { query, page } = this.state;
-    this.setState({ isLoading: true });
-
-    try {
-      const { images, totalPages } = await Api.getImages(query, page);
-
-      if (images.length === 0) {
-        alert('Sorry, nothing was found for your request');
-        return;
+        if (totalImages === 0) {
+          toast.error('Sorry, nothing was found for your request');
+          return;
+        }
+      } catch (error) {
+        setError('Ooops, something went wrong');
+      } finally {
+        setIsLoading(false);
       }
+    };
+    if (query !== '') fetchImages();
+  }, [query, page]);
 
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...images],
-          totalPages,
-          error: '',
-        };
-      });
-    } catch (error) {
-      this.setState({ error: 'Ooops, something went wrong' });
-    } finally {
-      this.setState({ isLoading: false });
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
     }
+  }, [error]);
+
+  const getQuery = queryText => {
+    if (queryText === query) {
+      toast.error('Enter a new request');
+      return;
+    }
+    setQuery(queryText);
+    setImages([]);
+    setPage(1);
+    setTotalImages2(0);
   };
 
-  render() {
-    const { images, isLoading, largeImgUrl, totalPages, page } = this.state;
+  const handleImgClick = largeImgUrl => {
+    setLargeImgUrl(largeImgUrl);
+  };
 
-    return (
-      <Section>
-        <Searchbar onSubmit={this.getQuery} />
-        {isLoading && <Loader />}
-        {images.length > 0 && (
-          <ImageGallery onImageClick={this.handleImgClick} images={images} />
-        )}
-        {images.length > 0 && totalPages > page && !isLoading && (
-          <Button onClick={this.handleLoadMore} />
-        )}
-        {largeImgUrl && (
-          <Modal
-            largeImgUrl={largeImgUrl}
-            handleImgClick={this.handleImgClick}
-          />
-        )}
-      </Section>
-    );
-  }
-}
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  return (
+    <Section>
+      <Searchbar onSubmit={getQuery} />
+      {isLoading && <Loader />}
+      {images.length > 0 && (
+        <ImageGallery onImageClick={handleImgClick} images={images} />
+      )}
+      {totalImages2 !== images.length && !isLoading && (
+        <Button onClick={handleLoadMore} />
+      )}
+      {largeImgUrl && (
+        <Modal largeImgUrl={largeImgUrl} handleImgClick={handleImgClick} />
+      )}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        theme="colored"
+        closeOnClick
+      />
+    </Section>
+  );
+};

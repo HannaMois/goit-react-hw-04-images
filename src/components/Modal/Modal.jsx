@@ -1,42 +1,31 @@
-import { Component } from 'react';
-import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import { Overlay, Box } from './Modal.styled';
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
+const Modal = ({ handleImgClick, largeImgUrl }) => {
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.code === 'Escape') {
+        handleImgClick('');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleImgClick]);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleBackdrop = evt => {
-    if (evt.target === evt.currentTarget) {
-      this.props.handleImgClick('');
+  const handleBackdrop = event => {
+    if (event.target === event.currentTarget) {
+      handleImgClick('');
     }
   };
 
-  handleKeyDown = evt => {
-    if (evt.code === 'Escape') {
-      this.props.handleImgClick('');
-    }
-  };
-
-  render() {
-    // console.log(this.props.largeImgUrl);
-    return (
-      <Overlay onClick={this.handleBackdrop}>
-        <Box>
-          <img src={this.props.largeImgUrl} alt="Large" />
-        </Box>
-      </Overlay>
-    );
-  }
-}
-
-Modal.propTypes = {
-  handleImgClick: PropTypes.func,
+  return (
+    <Overlay onClick={handleBackdrop}>
+      <Box>
+        <img src={largeImgUrl} alt="Large" />
+      </Box>
+    </Overlay>
+  );
 };
-
 export default Modal;
