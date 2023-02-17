@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://pixabay.com/api/';
+axios.defaults.baseURL = 'https://pixabay.com/api';
 const API_KEY = '32841517-26afb12f8bbb7df3fa6709fac';
 
 export default async function getImages(query, page) {
@@ -13,7 +13,7 @@ export default async function getImages(query, page) {
     orientation: 'horizontal',
     safesearch: 'true',
   };
-  const { data } = await axios.get(`${axios.defaults.baseURL}`, { params });
+  const { data } = await axios.get('/', { params });
 
   const images = data.hits.map(({ id, tags, webformatURL, largeImageURL }) => ({
     id,
